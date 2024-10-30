@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/bookcontroller.dart';
 import 'package:flutter_application_1/bookmodel.dart';
-import 'package:flutter_application_1/modal.dart'; // Assuming you have a modal widget
-
+import 'package:flutter_application_1/modal.dart'; 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -17,13 +16,14 @@ class _HomeViewState extends State<HomeView> {
   TextEditingController author = TextEditingController();
   TextEditingController stock = TextEditingController();
   TextEditingController photo = TextEditingController();
+  TextEditingController Name = TextEditingController();
   List buttonChoice = ["Update", "Delete"];
   List? books;
   int? bookId;
 
   void getBooks() {
     setState(() {
-      books = bookController.books; // Assuming `books` is the list in BookController
+      books = bookController.books; 
     });
   }
 
@@ -42,12 +42,13 @@ class _HomeViewState extends State<HomeView> {
           IconButton(
             onPressed: () {
               setState(() {
-                bookId = null; // Resetting the book ID for adding a new book
+                bookId = null; 
               });
               author.clear();
+              Name.clear();
               photo.clear();
               description.clear();
-              ModalWidget().showFullModal(context, addItem(null)); // Show modal for adding a new book
+              ModalWidget().showFullModal(context, addItem(null)); 
             },
             icon: Icon(Icons.add),
           ),
@@ -58,12 +59,13 @@ class _HomeViewState extends State<HomeView> {
         itemBuilder: (context, index) {
           return Card(
             child: ListTile(
-              leading: Image(image: AssetImage(books![index].photo)), // Assuming `photo` is a property
-              title: Text(books![index].author), // Displaying author
+              leading: Image(image: AssetImage(books![index].photo)), 
+              title: Text(books![index].Name), 
               subtitle: Column(
                 children: [Text(books![index].author),
-                Text(books![index].description)],
-              ) // Displaying description
+                Text(books![index].description),
+                Text("Stock:"+books![index].stock)],
+              ) 
               ,trailing: PopupMenuButton(
                 itemBuilder: (BuildContext context) {
                   return buttonChoice.map((choice) {
@@ -73,16 +75,17 @@ class _HomeViewState extends State<HomeView> {
                       onTap: () {
                         if (choice == "Update") {
                           setState(() {
-                            bookId = books![index].id; // Assuming `id` is a property
+                            bookId = books![index].id; 
                           });
+                          Name.text = books![index].author;
                           author.text = books![index].author;
                           photo.text = books![index].photo;
                           description.text = books![index].description;
-                          ModalWidget().showFullModal(context, addItem(index)); // Show modal for updating
+                          ModalWidget().showFullModal(context, addItem(index)); 
                         } else if (choice == "Delete") {
                           setState(() {
-                            books!.removeAt(index); // Remove the book from the list
-                            getBooks(); // Refresh the book list
+                            books!.removeAt(index); 
+                            getBooks(); 
                           });
                         }
                       },
@@ -103,6 +106,16 @@ class _HomeViewState extends State<HomeView> {
         key: formKey,
         child: Column(
           children: [
+            TextFormField(
+              controller: Name,
+              decoration: InputDecoration(labelText: "Title"),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Title must be filled';
+                }
+                return null;
+              },
+            ),
             TextFormField(
               controller: author,
               decoration: InputDecoration(labelText: "Author"),
@@ -137,23 +150,24 @@ class _HomeViewState extends State<HomeView> {
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   if (index != null) {
-                    // Update existing book
+                   
                     books![index].author = author.text;
                     books![index].photo = photo.text;
                     books![index].description = description.text;
                     books![index].stock = stock.text;
                   } else {
-                    // Add new book
+                    
                     books!.add(BookModel(
-                      id: books!.length + 1, // Assuming ID is auto-increment
+                      Name: Name.text,
+                      id: books!.length + 1, 
                       author: author.text,
                       photo: photo.text,
                       description: description.text,
                       stock: stock.text,
                     ));
                   }
-                  getBooks(); // Refresh the book list
-                  Navigator.pop(context); // Close the modal
+                  getBooks(); 
+                  Navigator.pop(context); 
                 }
               },
               child: Text("Save"),
